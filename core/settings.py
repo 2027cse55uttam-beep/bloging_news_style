@@ -107,9 +107,9 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 # --- CLOUDINARY CONFIGURATION (Images) ---
 # Yahan apni details bharein jo Cloudinary Dashboard se mili thi
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': 'yahan_cloud_name_likhein', 
-    'API_KEY': 'yahan_api_key_likhein', 
-    'API_SECRET': 'yahan_api_secret_likhein'
+    'CLOUD_NAME': 'dnq1xjou5', 
+    'API_KEY': '469316829675595', 
+    'API_SECRET': '2-in6DUA3rRYbChqDrAxkivGpb8'
 }
 
 # Media Settings
