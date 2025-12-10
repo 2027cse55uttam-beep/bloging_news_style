@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Home | DevBlog{% endblock %}
+
+{% block content %}
+
+<section class="text-center py-12 lg:py-20 relative">
+    <div class="absolute inset-0 -z-10 blur-3xl opacity-20 dark:opacity-10">
+        <div class="aspect-[1155/678] w-[72.1875rem] bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30"
+            style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)">
+        </div>
+    </div>
+
+    <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-6">
+        Coding Future, <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">One Line
+            at a Time.</span>
+    </h1>
+    <p class="mt-4 text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+        Deep dive into Django, Modern JavaScript, and Scalable Architecture.
+    </p>
+
+    <div class="mt-8 max-w-md mx-auto">
+        <div class="relative group">
+            <input type="text" name="q" placeholder="Search articles..." hx-get="{% url 'home' %}"
+                hx-trigger="keyup changed delay:500ms" hx-target="#posts-grid"
+                class="w-full px-5 py-3 rounded-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:outline-none transition shadow-sm group-hover:shadow-lg">
+
+            <button
+                class="absolute right-2 top-2 bg-primary text-white p-2 rounded-full hover:bg-indigo-700 transition">
+                <i class="ri-search-line"></i>
+            </button>
+        </div>
+    </div>
+</section>
+
+<section class="mt-12">
+    <div class="flex justify-between items-end mb-8">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white border-l-4 border-primary pl-4">
+            Latest Articles
+        </h2>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="posts-grid">
+
+        {% include 'partials/blog_list.html' %}
+
+    </div>
+</section>
+
+{% endblock %}

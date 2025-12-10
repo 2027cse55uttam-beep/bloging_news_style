@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ post.title }} | DevBlog{% endblock %}
+
+{% block content %}
+
+<div class="fixed top-0 left-0 h-1 bg-gradient-to-r from-primary to-secondary z-50 w-0" id="progressBar"></div>
+
+<article class="max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-3xl shadow-xl overflow-hidden mt-6 mb-12 border border-gray-100 dark:border-gray-700">
+    
+    {% if post.image %}
+    <div class="h-64 md:h-96 w-full relative">
+        <img src="{{ post.image.url }}" alt="{{ post.title }}" class="w-full h-full object-cover">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+        
+        <div class="absolute bottom-6 left-6 right-6">
+            <span class="bg-primary text-white text-xs font-bold px-3 py-1 rounded-full mb-3 inline-block">
+                {{ post.category.name }}
+            </span>
+            <h1 class="text-3xl md:text-5xl font-bold text-white leading-tight drop-shadow-md">
+                {{ post.title }}
+            </h1>
+        </div>
+    </div>
+    {% else %}
+    <div class="p-8 md:p-12 bg-gray-100 dark:bg-gray-700 text-center">
+         <span class="bg-primary text-white text-xs font-bold px-3 py-1 rounded-full mb-3 inline-block">
+            {{ post.category.name }}
+        </span>
+        <h1 class="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white leading-tight">
+            {{ post.title }}
+        </h1>
+    </div>
+    {% endif %}
+
+    <div class="px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between flex-wrap gap-4">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-primary font-bold overflow-hidden text-lg">
+                {{ post.author.username|slice:":1"|upper }}
+            </div>
+            <div>
+                <p class="text-sm font-bold text-gray-900 dark:text-white">{{ post.author.username }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Author</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-6 text-sm text-gray-500 dark:text-gray-400">
+            <div class="flex items-center gap-1">
+                <i class="ri-calendar-line text-primary"></i> {{ post.created_at|date:"F d, Y" }}
+            </div>
+            <div class="flex items-center gap-1">
+                <i class="ri-time-line text-secondary"></i> {{ post.reading_time }}
+            </div>
+        </div>
+    </div>
+
+    <div class="px-6 md:px-12 py-10 text-gray-800 dark:text-gray-200 leading-relaxed text-lg space-y-6">
+        {{ post.content|safe }}
+    </div>
+
+    <div class="px-6 md:px-12 pb-8">
+        <div class="flex flex-wrap gap-2 mb-8">
+            {% for tag in post.tags.all %}
+                <span class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-lg text-sm hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer transition">
+                    #{{ tag.name }}
+                </span>
+            {% endfor %}
+        </div>
+        
+        <div class="mb-8">
+             <a href="{% url 'home' %}" class="inline-flex items-center text-primary font-bold hover:underline">
+                <i class="ri-arrow-left-line mr-2"></i> Back to Home
+            </a>
+        </div>
+
+        <div class="border-t border-gray-100 dark:border-gray-700 pt-8">
+            <h4 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Share this article:</h4>
+            <div class="flex flex-wrap gap-4">
+                
+                <a href="https://api.whatsapp.com/send?text={{ post.title|urlencode }}%20{{ request.build_absolute_uri|urlencode }}" 
+                   target="_blank"
+                   class="w-10 h-10 rounded-full bg-green-500 text-white flex items-center justify-center hover:-translate-y-1 transition shadow-lg" title="Share on WhatsApp">
+                    <i class="ri-whatsapp-line text-xl"></i>
+                </a>
+
+                <a href="https://twitter.com/intent/tweet?text={{ post.title|urlencode }}&url={{ request.build_absolute_uri|urlencode }}" 
+                   target="_blank"
+                   class="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center hover:-translate-y-1 transition shadow-lg" title="Share on X">
+                    <i class="ri-twitter-x-line text-xl"></i>
+                </a>
+
+                <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.build_absolute_uri|urlencode }}" 
+                   target="_blank"
+                   class="w-10 h-10 rounded-full bg-blue-700 text-white flex items-center justify-center hover:-translate-y-1 transition shadow-lg" title="Share on LinkedIn">
+                    <i class="ri-linkedin-fill text-xl"></i>
+                </a>
+
+                <button onclick="copyToClipboard()" 
+                        class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 flex items-center justify-center hover:-translate-y-1 transition relative group" title="Copy Link">
+                    <i class="ri-file-copy-line text-xl"></i>
+                    <span id="copyTooltip" class="absolute -top-10 bg-black text-white text-xs px-2 py-1 rounded opacity-0 transition duration-300">Copied!</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</article>
+
+
+<section class="max-w-4xl mx-auto px-6 mb-16">
+    <div class="bg-gray-50 dark:bg-gray-900/50 rounded-3xl p-8 border border-gray-100 dark:border-gray-800">
+        
+        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-8 flex items-center gap-2">
+            <i class="ri-chat-1-line text-primary"></i> 
+            Comments ({{ comments.count }})
+        </h3>
+
+        <div class="space-y-6 mb-10">
+            {% for comment in comments %}
+            <div class="flex gap-4 animate-fade-in-up">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-white font-bold shadow-md">
+                    {{ comment.name|slice:":1"|upper }}
+                </div>
+                
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-2xl rounded-tl-none shadow-sm border border-gray-100 dark:border-gray-700 flex-grow">
+                    <div class="flex justify-between items-center mb-2">
+                        <h4 class="font-bold text-gray-900 dark:text-white">{{ comment.name }}</h4>
+                        <span class="text-xs text-gray-500">{{ comment.created_at|date:"M d, Y" }}</span>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
+                        {{ comment.body|linebreaks }}
+                    </p>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-gray-500 dark:text-gray-400 text-center italic">No comments yet. Be the first to share your thoughts!</p>
+            {% endfor %}
+        </div>
+
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-8">
+            <h4 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Leave a Reply</h4>
+            
+            {% if new_comment %}
+            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 rounded" role="alert">
+                <p class="font-bold">Success!</p>
+                <p>Your comment has been posted.</p>
+            </div>
+            {% endif %}
+
+            <form method="post" action=".">
+                {% csrf_token %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>{{ comment_form.name }}</div>
+                    <div>{{ comment_form.email }}</div>
+                </div>
+                <div class="mb-4">{{ comment_form.body }}</div>
+                <button type="submit" class="bg-primary text-white px-6 py-3 rounded-xl font-bold hover:bg-indigo-700 transition shadow-lg shadow-indigo-500/30">
+                    Post Comment
+                </button>
+            </form>
+        </div>
+
+    </div>
+</section>
+
+{% if related_posts %}
+<section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-8 border-l-4 border-primary pl-4">
+        More in {{ post.category.name }}
+    </h3>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {% for rp in related_posts %}
+        <a href="{{ rp.get_absolute_url }}" class="group bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-xl transition duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden flex flex-col">
+            
+            <div class="relative overflow-hidden h-40">
+                {% if rp.image %}
+                    <img src="{{ rp.image.url }}" alt="{{ rp.title }}" class="w-full h-full object-cover transform group-hover:scale-110 transition duration-500">
+                {% else %}
+                        <img src="https://placehold.co/600x400/1e1e1e/FFF?text=No+Image" class="w-full h-full object-cover">
+                {% endif %}
+            </div>
+
+            <div class="p-5 flex-grow">
+                <h4 class="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition line-clamp-2">
+                    {{ rp.title }}
+                </h4>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                    {{ rp.reading_time }}
+                </p>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<script>
+    // 1. Progress Bar Logic
+    window.onscroll = function() {
+        let winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+        let height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        let scrolled = (winScroll / height) * 100;
+        document.getElementById("progressBar").style.width = scrolled + "%";
+    };
+
+    // 2. Copy Link Logic
+    function copyToClipboard() {
+        navigator.clipboard.writeText(window.location.href);
+        const tooltip = document.getElementById('copyTooltip');
+        tooltip.classList.remove('opacity-0');
+        setTimeout(() => {
+            tooltip.classList.add('opacity-0');
+        }, 2000);
+    }
+</script>
+
+{% endblock %}
