@@ -1,7 +1,8 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv  # <--- Import This
-
+from django.templatetags.static import static
+from django.urls import reverse_lazy
 # .env file load karein (Local development ke liye)
 load_dotenv()
 
