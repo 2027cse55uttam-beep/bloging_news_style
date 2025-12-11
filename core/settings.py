@@ -1,4 +1,5 @@
 import os
+import sys
 from pathlib import Path
 from dotenv import load_dotenv
 from django.templatetags.static import static
@@ -8,14 +9,22 @@ import dj_database_url
 # 1. Load Environment Variables
 load_dotenv()
 
-# Build paths
+# Build paths - Pathlib ka use (Sabse Safe)
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# --- DEBUGGING PRINTS (Logs mein dikhenge) ---
+# Ye batayega ki server par folders kahan hain
+print("="*50)
+print(f"DEBUG: BASE_DIR is: {BASE_DIR}")
+print(f"DEBUG: Looking for static in: {BASE_DIR / 'static'}")
+print(f"DEBUG: Does static folder exist?: {(BASE_DIR / 'static').exists()}")
+print("="*50)
+# ---------------------------------------------
 
 # 2. SECRET KEY
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-fallback-key-change-in-prod')
 
-# 3. DEBUG LOGIC (Automatic)
-# Render par DEBUG False hoga, Local par True
+# 3. DEBUG LOGIC
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
     DEBUG = False
@@ -27,12 +36,11 @@ ALLOWED_HOSTS = ['*']
 
 # Application definition
 INSTALLED_APPS = [
-    # Unfold Admin Apps (Sabse Upar)
     "unfold",
     "unfold.contrib.filters",
     "unfold.contrib.forms",
     
-    'cloudinary_storage',      # Storage pehle aana chahiye
+    'cloudinary_storage',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -47,7 +55,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # <--- WhiteNoise Correct Position
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -102,20 +110,26 @@ USE_I18N = True
 USE_TZ = True
 
 
-# --- STATIC FILES CONFIGURATION (FIXED) ---
+# --- STATIC FILES (THE MAIN FIX) ---
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# WhiteNoise Storage (Simple wala)
+# WhiteNoise Storage
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
-# Correct Format (List with Brackets)
+# Correct Pathlib Syntax
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
 
+# ★ Zabardasti Dhoondne wala Finder (Explicit) ★
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+]
 
-# --- CLOUDINARY CONFIGURATION (Images) ---
+
+# --- CLOUDINARY CONFIGURATION ---
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'), 
     'API_KEY': os.getenv('CLOUDINARY_API_KEY'), 
@@ -146,7 +160,7 @@ CKEDITOR_CONFIGS = {
 SILENCED_SYSTEM_CHECKS = ['ckeditor.W001']
 
 
-# --- CUSTOM ADMIN SETTINGS (Django Unfold) ---
+# --- CUSTOM ADMIN SETTINGS ---
 UNFOLD = {
     "SITE_TITLE": "RoyBlog Admin",
     "SITE_HEADER": "RoyBlog Dashboard",
@@ -185,7 +199,6 @@ if not DEBUG:
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
-    
     if RENDER_EXTERNAL_HOSTNAME:
         CSRF_TRUSTED_ORIGINS = [f'https://{RENDER_EXTERNAL_HOSTNAME}']
 else:
