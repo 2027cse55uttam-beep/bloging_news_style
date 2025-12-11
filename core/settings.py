@@ -15,7 +15,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-fallback-key-change-in-prod')
 
 # 3. DEBUG LOGIC (Automatic)
-# Agar Render par hai to DEBUG False hoga, Local laptop par True hoga
+# Render par DEBUG False hoga, Local par True
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
     DEBUG = False
@@ -47,7 +47,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # <--- WhiteNoise 2nd position par (Correct)
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # <--- WhiteNoise Correct Position
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -78,7 +78,6 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 
 # 4. DATABASE CONFIGURATION
-# Render par PostgreSQL automatic connect hoga, Local par SQLite
 DATABASES = {
     'default': dj_database_url.config(
         default='sqlite:///' + str(BASE_DIR / 'db.sqlite3'),
@@ -103,14 +102,16 @@ USE_I18N = True
 USE_TZ = True
 
 
-# --- STATIC FILES (CSS/JS) ---
+# --- STATIC FILES CONFIGURATION (FIXED) ---
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-# ★ FIXED: "Manifest" hata diya taaki missing files ki wajah se crash na ho
+
+# WhiteNoise Storage (Simple wala)
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
+# Correct Format (List with Brackets)
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
+    BASE_DIR / "static",
 ]
 
 
@@ -150,7 +151,6 @@ UNFOLD = {
     "SITE_TITLE": "RoyBlog Admin",
     "SITE_HEADER": "RoyBlog Dashboard",
     "SITE_URL": "/",
-    # Icons configuration
     "SITE_ICON": {
         "light": lambda request: static("images/favicon.png"),
         "dark": lambda request: static("images/favicon.png"),
@@ -180,27 +180,15 @@ UNFOLD = {
 }
 
 
-# 5. SECURITY & HTTPS SETTINGS (Logic Added)
-# Agar Production (Render) par hain, toh Security Tight karo
+# 5. SECURITY & HTTPS SETTINGS
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     
-    # Render Domain ko trust karo (Login Fix)
     if RENDER_EXTERNAL_HOSTNAME:
         CSRF_TRUSTED_ORIGINS = [f'https://{RENDER_EXTERNAL_HOSTNAME}']
 else:
-    # Localhost settings
     SECURE_SSL_REDIRECT = False
     SESSION_COOKIE_SECURE = False
     CSRF_COOKIE_SECURE = False
-
-
-
-    # --- DEBUGGING (Add at the bottom of settings.py) ---
-print("="*50)
-print(f"DEBUG: BASE_DIR is: {BASE_DIR}")
-print(f"DEBUG: Static folder check: {BASE_DIR / 'static'}")
-print(f"DEBUG: Folder exists?: {os.path.exists(BASE_DIR / 'static')}")
-print("="*50)
