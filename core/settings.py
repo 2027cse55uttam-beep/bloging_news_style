@@ -1,14 +1,19 @@
 import os
 from pathlib import Path
+from dotenv import load_dotenv  # <--- Import This
+
+# .env file load karein (Local development ke liye)
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-!*0#vs=jb#vf=ug@)!z#snaj2&c_7!n+#f%w&98c+j7(7rqyhg'
+# Ab ye .env file se key uthayega
+SECRET_KEY = os.getenv('SECRET_KEY', 'fallback-secret-key-if-not-found')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# DEBUG value check
+DEBUG = os.getenv('DEBUG') == 'True'
 
 # HTTPS Problem Fix (Localhost ke liye sab False rakhein)
 SECURE_SSL_REDIRECT = False
@@ -21,28 +26,21 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
-    # 1. Cloudinary Storage SABSE UPAR hona chahiye
     'cloudinary_storage',
-    
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
-    # 2. Aapke Apps
     'blog',
     'ckeditor',
-    'cloudinary', # Helper library
+    'cloudinary',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    
-    # 3. WhiteNoise Middleware YAHAN add karein
     'whitenoise.middleware.WhiteNoiseMiddleware',
-    
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -105,11 +103,11 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 
 
 # --- CLOUDINARY CONFIGURATION (Images) ---
-# Yahan apni details bharein jo Cloudinary Dashboard se mili thi
+# Ab ye .env file se keys uthayega
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': 'dnq1xjou5', 
-    'API_KEY': '469316829675595', 
-    'API_SECRET': '2-in6DUA3rRYbChqDrAxkivGpb8'
+    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'), 
+    'API_KEY': os.getenv('CLOUDINARY_API_KEY'), 
+    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET')
 }
 
 # Media Settings
@@ -134,5 +132,4 @@ CKEDITOR_CONFIGS = {
     },
 }
 
-# Warning Hide karne ke liye
 SILENCED_SYSTEM_CHECKS = ['ckeditor.W001']
