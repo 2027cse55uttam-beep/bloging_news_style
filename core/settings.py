@@ -1,34 +1,38 @@
 import os
 from pathlib import Path
-from dotenv import load_dotenv 
-import dj_database_url  # <--- Zaroori Import for Database
+from dotenv import load_dotenv  # <--- Import This
 
-# .env file load karein
+# .env file load karein (Local development ke liye)
 load_dotenv()
 
-# Build paths
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY WARNING: Secrets from Environment
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-fallback-key')
+# SECURITY WARNING: keep the secret key used in production secret!
+# Ab ye .env file se key uthayega
+SECRET_KEY = os.getenv('SECRET_KEY', 'fallback-secret-key-if-not-found')
 
-# DEBUG: Agar 'RENDER' environment variable hai toh False, warna True (Local)
-# Isse aapko bar-bar manual change nahi karna padega
-DEBUG = 'RENDER' not in os.environ
+# DEBUG value check
+DEBUG = os.getenv('DEBUG') == 'True'
+
+# HTTPS Problem Fix (Localhost ke liye sab False rakhein)
+SECURE_SSL_REDIRECT = False
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
 
 ALLOWED_HOSTS = ['*']
 
 
 # Application definition
+
 INSTALLED_APPS = [
-    'cloudinary_storage', # Top par
+    'cloudinary_storage',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
     'blog',
     'ckeditor',
     'cloudinary',
@@ -36,7 +40,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware', # Static files ke liye
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -66,13 +70,12 @@ TEMPLATES = [
 WSGI_APPLICATION = 'core.wsgi.application'
 
 
-# --- DATABASE CONFIGURATION (FIXED) ---
-# Local mein SQLite chalega, Render par PostgreSQL automatic utha lega
+# Database
 DATABASES = {
-    'default': dj_database_url.config(
-        default='sqlite:///' + str(BASE_DIR / 'db.sqlite3'),
-        conn_max_age=600
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
 
 
@@ -100,12 +103,14 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 
 
 # --- CLOUDINARY CONFIGURATION (Images) ---
+# Ab ye .env file se keys uthayega
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'), 
     'API_KEY': os.getenv('CLOUDINARY_API_KEY'), 
     'API_SECRET': os.getenv('CLOUDINARY_API_SECRET')
 }
 
+# Media Settings
 MEDIA_URL = '/media/'
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
@@ -128,15 +133,3 @@ CKEDITOR_CONFIGS = {
 }
 
 SILENCED_SYSTEM_CHECKS = ['ckeditor.W001']
-
-# --- SECURITY SETTINGS (Logic Added) ---
-# Agar Debug False hai (Production), toh HTTPS force karo
-if not DEBUG:
-    SECURE_SSL_REDIRECT = True
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
-else:
-    # Localhost ke liye off rakho
-    SECURE_SSL_REDIRECT = False
-    SESSION_COOKIE_SECURE = False
-    CSRF_COOKIE_SECURE = False
