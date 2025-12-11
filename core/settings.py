@@ -119,7 +119,6 @@ STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # WhiteNoise Storage
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 # Correct Pathlib Syntax
 STATICFILES_DIRS = [
@@ -141,7 +140,6 @@ CLOUDINARY_STORAGE = {
 }
 
 MEDIA_URL = '/media/'
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 
 # --- CKEDITOR CONFIGURATION ---
@@ -213,3 +211,17 @@ else:
 
     # Agar ye line nahi hai, toh add karo:
 CSRF_TRUSTED_ORIGINS = ['https://bloging-news-style.onrender.com']
+
+
+
+# --- DJANGO 5.0+ STORAGES CONFIGURATION (REQUIRED) ---
+STORAGES = {
+    # 1. Media (Images) -> Cloudinary par jayengi
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    # 2. Static (CSS/JS) -> WhiteNoise handle karega
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+    },
+}
