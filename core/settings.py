@@ -36,18 +36,22 @@ ALLOWED_HOSTS = ['*']
 
 # Application definition
 INSTALLED_APPS = [
+    # Unfold Admin
     "unfold",
     "unfold.contrib.filters",
     "unfold.contrib.forms",
     
-    'cloudinary_storage',
+    # ★ CHANGE IS HERE: Staticfiles ko Cloudinary se UPAR rakho ★
+    'django.contrib.staticfiles',  
+    'cloudinary_storage',        
+    
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
     
+    # Apps
     'blog',
     'ckeditor',
     'cloudinary',
