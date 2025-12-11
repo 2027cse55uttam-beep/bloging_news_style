@@ -107,7 +107,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # ★ FIXED: "Manifest" hata diya taaki missing files ki wajah se crash na ho
-# STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
@@ -202,6 +202,5 @@ else:
 print("="*50)
 print(f"DEBUG: BASE_DIR is: {BASE_DIR}")
 print(f"DEBUG: Static folder check: {BASE_DIR / 'static'}")
-import os
 print(f"DEBUG: Folder exists?: {os.path.exists(BASE_DIR / 'static')}")
 print("="*50)
