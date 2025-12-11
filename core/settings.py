@@ -1,43 +1,45 @@
 import os
 from pathlib import Path
-from dotenv import load_dotenv  # <--- Import This
+from dotenv import load_dotenv
 from django.templatetags.static import static
 from django.urls import reverse_lazy
 import dj_database_url
-# .env file load karein (Local development ke liye)
+
+# 1. Load Environment Variables
 load_dotenv()
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# Build paths
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY WARNING: keep the secret key used in production secret!
-# Ab ye .env file se key uthayega
-SECRET_KEY = os.getenv('SECRET_KEY', 'fallback-secret-key-if-not-found')
+# 2. SECRET KEY
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-fallback-key-change-in-prod')
 
-# DEBUG value check
-DEBUG = os.getenv('DEBUG') == 'True'
-
-# HTTPS Problem Fix (Localhost ke liye sab False rakhein)
-SECURE_SSL_REDIRECT = False
-SESSION_COOKIE_SECURE = False
-CSRF_COOKIE_SECURE = False
+# 3. DEBUG LOGIC (Automatic)
+# Agar Render par hai to DEBUG False hoga, Local laptop par True hoga
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    DEBUG = False
+else:
+    DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
 
 # Application definition
-
 INSTALLED_APPS = [
+    # Unfold Admin Apps (Sabse Upar)
     "unfold",
-    "unfold.contrib.filters",  # Advanced filters ke liye
-    "unfold.contrib.forms",    # Forms sundar banane ke liye
-    'cloudinary_storage',
+    "unfold.contrib.filters",
+    "unfold.contrib.forms",
+    
+    'cloudinary_storage',      # Storage pehle aana chahiye
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
     'blog',
     'ckeditor',
     'cloudinary',
@@ -45,7 +47,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # <--- WhiteNoise 2nd position par (Correct)
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -75,10 +77,10 @@ TEMPLATES = [
 WSGI_APPLICATION = 'core.wsgi.application'
 
 
-# Database Section ko isse replace karo:
+# 4. DATABASE CONFIGURATION
+# Render par PostgreSQL automatic connect hoga, Local par SQLite
 DATABASES = {
     'default': dj_database_url.config(
-        # Local mein SQLite use karega, Render par Postgres
         default='sqlite:///' + str(BASE_DIR / 'db.sqlite3'),
         conn_max_age=600
     )
@@ -104,19 +106,20 @@ USE_TZ = True
 # --- STATIC FILES (CSS/JS) ---
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# ★ FIXED: "Manifest" hata diya taaki missing files ki wajah se crash na ho
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+
 STATICFILES_DIRS = [BASE_DIR / "static"]
 
 
 # --- CLOUDINARY CONFIGURATION (Images) ---
-# Ab ye .env file se keys uthayega
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'), 
     'API_KEY': os.getenv('CLOUDINARY_API_KEY'), 
     'API_SECRET': os.getenv('CLOUDINARY_API_SECRET')
 }
 
-# Media Settings
 MEDIA_URL = '/media/'
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
@@ -141,19 +144,18 @@ CKEDITOR_CONFIGS = {
 SILENCED_SYSTEM_CHECKS = ['ckeditor.W001']
 
 
-
-
 # --- CUSTOM ADMIN SETTINGS (Django Unfold) ---
 UNFOLD = {
     "SITE_TITLE": "RoyBlog Admin",
     "SITE_HEADER": "RoyBlog Dashboard",
     "SITE_URL": "/",
+    # Icons configuration
     "SITE_ICON": {
-        "light": lambda request: static("images/favicon.png"),  # Light mode icon
-        "dark": lambda request: static("images/favicon.png"),   # Dark mode icon
+        "light": lambda request: static("images/favicon.png"),
+        "dark": lambda request: static("images/favicon.png"),
     },
     "SIDEBAR": {
-        "show_search": True,  # Sidebar mein search bar
+        "show_search": True,
         "show_all_applications": True,
         "navigation": [
             {
@@ -175,3 +177,20 @@ UNFOLD = {
         ],
     },
 }
+
+
+# 5. SECURITY & HTTPS SETTINGS (Logic Added)
+# Agar Production (Render) par hain, toh Security Tight karo
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    
+    # Render Domain ko trust karo (Login Fix)
+    if RENDER_EXTERNAL_HOSTNAME:
+        CSRF_TRUSTED_ORIGINS = [f'https://{RENDER_EXTERNAL_HOSTNAME}']
+else:
+    # Localhost settings
+    SECURE_SSL_REDIRECT = False
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
