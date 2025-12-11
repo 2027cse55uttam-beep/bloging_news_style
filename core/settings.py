@@ -3,6 +3,7 @@ from pathlib import Path
 from dotenv import load_dotenv  # <--- Import This
 from django.templatetags.static import static
 from django.urls import reverse_lazy
+import dj_database_url
 # .env file load karein (Local development ke liye)
 load_dotenv()
 
@@ -74,12 +75,13 @@ TEMPLATES = [
 WSGI_APPLICATION = 'core.wsgi.application'
 
 
-# Database
+# Database Section ko isse replace karo:
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        # Local mein SQLite use karega, Render par Postgres
+        default='sqlite:///' + str(BASE_DIR / 'db.sqlite3'),
+        conn_max_age=600
+    )
 }
 
 
