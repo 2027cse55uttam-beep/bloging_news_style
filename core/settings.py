@@ -26,6 +26,9 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    "unfold",
+    "unfold.contrib.filters",  # Advanced filters ke liye
+    "unfold.contrib.forms",    # Forms sundar banane ke liye
     'cloudinary_storage',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -133,3 +136,39 @@ CKEDITOR_CONFIGS = {
 }
 
 SILENCED_SYSTEM_CHECKS = ['ckeditor.W001']
+
+
+
+
+# --- CUSTOM ADMIN SETTINGS (Django Unfold) ---
+UNFOLD = {
+    "SITE_TITLE": "RoyBlog Admin",
+    "SITE_HEADER": "RoyBlog Dashboard",
+    "SITE_URL": "/",
+    "SITE_ICON": {
+        "light": lambda request: static("images/favicon.png"),  # Light mode icon
+        "dark": lambda request: static("images/favicon.png"),   # Dark mode icon
+    },
+    "SIDEBAR": {
+        "show_search": True,  # Sidebar mein search bar
+        "show_all_applications": True,
+        "navigation": [
+            {
+                "title": "Navigation",
+                "separator": True,
+                "items": [
+                    {
+                        "title": "Dashboard",
+                        "icon": "dashboard",
+                        "link": reverse_lazy("admin:index"),
+                    },
+                    {
+                        "title": "Go to Site",
+                        "icon": "web",
+                        "link": "/",
+                    },
+                ],
+            },
+        ],
+    },
+}
