@@ -109,7 +109,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # ★ FIXED: "Manifest" hata diya taaki missing files ki wajah se crash na ho
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
-STATICFILES_DIRS = os.path.join(BASE_DIR, 'static'),
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
 
 
 # --- CLOUDINARY CONFIGURATION (Images) ---
