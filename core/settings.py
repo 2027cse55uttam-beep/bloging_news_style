@@ -209,3 +209,7 @@ else:
     SECURE_SSL_REDIRECT = False
     SESSION_COOKIE_SECURE = False
     CSRF_COOKIE_SECURE = False
+
+
+    # Agar ye line nahi hai, toh add karo:
+CSRF_TRUSTED_ORIGINS = ['https://bloging-news-style.onrender.com']
